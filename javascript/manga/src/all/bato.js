@@ -56,7 +56,6 @@ class DefaultExtension extends MProvider {
       
       const res = await this.client.post(link, headers, body);
       const js = JSON.parse(res.body || "{}");
-      console.log(JSON.stringify(js))
       if (js.data && js.data[query_name]) return js.data[query_name];
       return js;
     }
