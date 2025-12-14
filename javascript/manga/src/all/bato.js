@@ -20,7 +20,7 @@ const queries = {
   "get_content_chapterNode": "query get_content_chapterNode($id: ID!) {get_content_chapterNode(id: $id) {data {imageFiles}}}"
 }
 
-const HOST_RE = /(^|\/\/)k(\d*\.)/i;
+const HOST_RE = /(^|\/\/)([kn])(\d*\.)/i;
 
 class DefaultExtension extends MProvider {
     constructor() {
@@ -32,14 +32,22 @@ class DefaultExtension extends MProvider {
     }
 
     async fixURL(u) {
-      const headers = this.getHeaders();
-      const response = await this.client.head(u);
-      if (response.statusCode === 503) {
-        return typeof u === 'string' && HOST_RE.test(u)
-          ? u.replace(HOST_RE, '$1n$2')
-          : null;
-      }
-      return u;
+      if (typeof u !== "string") return u;
+
+      const res = await this.client.head(u);
+      if (res.statusCode !== 503) return u;
+
+      const m = u.match(/(^|\/\/)([kn])(\d*\.)/i);
+      if (!m) return u;
+        
+      const alt = m[2].toLowerCase() === "k" ? "n" : "k";
+      const altUrl = u.replace(
+        /(^|\/\/)([kn])(\d*\.)/i,
+        `$1${alt}$3`
+      );
+
+      const res2 = await this.client.head(altUrl);
+      return res2.statusCode === 503 ? u : altUrl;
     }
     
     getHeaders(url) {
