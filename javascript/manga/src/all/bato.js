@@ -8,7 +8,7 @@ const mangayomiSources = [{
     "isManga": true,
     "isNsfw": true,
     "itemType": 0,
-    "version": "0.0.6",
+    "version": "0.0.7",
     "pkgPath": "manga/src/all/bato.js",
     "notes": ""
 }];
@@ -20,6 +20,8 @@ const queries = {
   "get_content_chapterNode": "query get_content_chapterNode($id: ID!) {get_content_chapterNode(id: $id) {data {imageFiles}}}"
 }
 
+const HOST_RE = /(^|\/\/)k(\d*\.)/i;
+
 class DefaultExtension extends MProvider {
     constructor() {
        super();
@@ -27,6 +29,17 @@ class DefaultExtension extends MProvider {
        this.prefs = new SharedPreferences();
        this.defaultUserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64)";
        this.graphql_endpoint = "apo"; // or ap2, which is v4 and uses different queries
+    }
+
+    async fixURL(u) {
+      const headers = this.getHeaders();
+      const response = await this.client.head(u);
+      if (response.statusCode === 503) {
+        return typeof u === 'string' && HOST_RE.test(u)
+          ? u.replace(HOST_RE, '$1n$2')
+          : null;
+      }
+      return u;
     }
     
     getHeaders(url) {
@@ -116,7 +129,7 @@ class DefaultExtension extends MProvider {
       for (const comic of res["items"]) {
         list.push({ 
           name: comic["data"]["name"], 
-          imageUrl: comic["data"]["urlCover600"], 
+          imageUrl: await this.fixUrl(comic["data"]["urlCover600"]), 
           link: this.baseUrl+comic["data"]["urlPath"], 
           genre: comic["data"]["genres"],
           author: comic["data"]["authors"].join(" & "),
@@ -143,7 +156,7 @@ class DefaultExtension extends MProvider {
       for (const comic of res["items"]) {
         list.push({ 
           name: comic["data"]["name"], 
-          imageUrl: comic["data"]["urlCover600"], 
+          imageUrl: await this.fixUrl(comic["data"]["urlCover600"]), 
           link: this.baseUrl+comic["data"]["urlPath"], 
           genre: comic["data"]["genres"],
           author: comic["data"]["authors"].join(" & "),
@@ -183,7 +196,7 @@ class DefaultExtension extends MProvider {
         return {
           name: comic["data"]["name"],
           link,
-          imageUrl: comic["data"]["urlCover600"],
+          imageUrl: await this.fixUrl(comic["data"]["urlCover600"]),
           author:comic["data"]["authors"].join(" & "),
           artist: comic["data"]["artists"].join(" & "),
           genre: comic["data"]["genres"],
@@ -199,7 +212,11 @@ class DefaultExtension extends MProvider {
       let res = await this.graphql("get_content_chapterNode", {
         id: chapterId
       })
-      return res["data"]["imageFiles"];
+      let images = res["data"]["imageFiles"];
+      for (let i = 0; i<images.length; i++) {
+          images[i] = await this.fixUrl(images[i]);
+      }
+      return images;
     }
     getFilterList() {
         return [
