@@ -8,7 +8,7 @@ const mangayomiSources = [{
     "isManga": true,
     "isNsfw": true,
     "itemType": 0,
-    "version": "0.0.7",
+    "version": "0.0.8",
     "pkgPath": "manga/src/all/bato.js",
     "notes": ""
 }];
