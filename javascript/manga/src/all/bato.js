@@ -109,7 +109,7 @@ class DefaultExtension extends MProvider {
       for (const comic of res["items"]) {
         list.push({ 
           name: comic["data"]["name"], 
-          imageUrl: comic["data"]["urlCover600"], 
+          imageUrl: await this.fixURL(comic["data"]["urlCover600"]), 
           link: this.baseUrl+comic["data"]["urlPath"], 
           genre: comic["data"]["genres"],
           author: comic["data"]["authors"].join(" & "),
@@ -137,7 +137,7 @@ class DefaultExtension extends MProvider {
       for (const comic of res["items"]) {
         list.push({ 
           name: comic["data"]["name"], 
-          imageUrl: await this.fixUrl(comic["data"]["urlCover600"]), 
+          imageUrl: await this.fixURL(comic["data"]["urlCover600"]), 
           link: this.baseUrl+comic["data"]["urlPath"], 
           genre: comic["data"]["genres"],
           author: comic["data"]["authors"].join(" & "),
@@ -164,7 +164,7 @@ class DefaultExtension extends MProvider {
       for (const comic of res["items"]) {
         list.push({ 
           name: comic["data"]["name"], 
-          imageUrl: await this.fixUrl(comic["data"]["urlCover600"]), 
+          imageUrl: await this.fixURL(comic["data"]["urlCover600"]), 
           link: this.baseUrl+comic["data"]["urlPath"], 
           genre: comic["data"]["genres"],
           author: comic["data"]["authors"].join(" & "),
@@ -204,8 +204,8 @@ class DefaultExtension extends MProvider {
         return {
           name: comic["data"]["name"],
           link,
-          imageUrl: await this.fixUrl(comic["data"]["urlCover600"]),
-          author:comic["data"]["authors"].join(" & "),
+          imageUrl: await this.fixURL(comic["data"]["urlCover600"]),
+          author: comic["data"]["authors"].join(" & "),
           artist: comic["data"]["artists"].join(" & "),
           genre: comic["data"]["genres"],
           status: this.statusCode(comic["data"]["uploadStatus"]),
@@ -222,7 +222,7 @@ class DefaultExtension extends MProvider {
       })
       let images = res["data"]["imageFiles"];
       for (let i = 0; i<images.length; i++) {
-          images[i] = await this.fixUrl(images[i]);
+          images[i] = await this.fixURL(images[i]);
       }
       return images;
     }
