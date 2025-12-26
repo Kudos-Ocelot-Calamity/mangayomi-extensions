@@ -8,7 +8,7 @@ const mangayomiSources = [{
     "isManga": true,
     "isNsfw": true,
     "itemType": 0,
-    "version": "0.0.9",
+    "version": "0.0.10",
     "pkgPath": "manga/src/all/bato.js",
     "notes": ""
 }];
@@ -20,7 +20,7 @@ const queries = {
   "get_content_chapterNode": "query get_content_chapterNode($id: ID!) {get_content_chapterNode(id: $id) {data {imageFiles}}}"
 }
 
-const HOST_RE = /(^|\/\/)([kn])(\d*\.)/i;
+const HOST_RE = /(^|\/\/)(k)(\d*\.)/i;
 
 class DefaultExtension extends MProvider {
     constructor() {
@@ -29,25 +29,15 @@ class DefaultExtension extends MProvider {
        this.prefs = new SharedPreferences();
        this.defaultUserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64)";
        this.graphql_endpoint = "apo"; // or ap2, which is v4 and uses different queries
+       this.query_size = 10;
     }
 
     async fixURL(u) {
-      if (typeof u !== "string") return u;
-
-      const res = await this.client.head(u);
-      if (res.statusCode !== 503) return u;
-
-      const m = u.match(/(^|\/\/)([kn])(\d*\.)/i);
-      if (!m) return u;
-        
-      const alt = m[2].toLowerCase() === "k" ? "n" : "k";
-      const altUrl = u.replace(
-        /(^|\/\/)([kn])(\d*\.)/i,
-        `$1${alt}$3`
+      // temporary url fix 
+      return u.replace(
+        HOST_RE,
+        `$1n$3`
       );
-
-      const res2 = await this.client.head(altUrl);
-      return res2.statusCode === 503 ? u : altUrl;
     }
     
     getHeaders(url) {
@@ -119,17 +109,25 @@ class DefaultExtension extends MProvider {
         });
       }
       
-      return {"list": list, hasNextPage: true};
+      return {"list": list, hasNextPage: list.length == this.query_size};
     }  
     async search(query, page, filters) {
+      let included = [];
+      let excluded = [];
+      filters.forEach(filter => {
+        if (filter.type === "GenreFilter") {
+          included = filter.state.filter(e => e.state === 1).map(e => e.value);
+          excluded = filter.state.filter(e => e.state === 2).map(e => e.value);
+        }
+      })
       let res = await this.graphql("get_content_searchComic", {
          "select": {
              "where": "browse",
             "page": page,
             "size": 10,
             "word": query,
-            "excGenres": [], // add this later
-            "incGenres": [] // add this later
+            "excGenres": excluded,
+            "incGenres": included
         }
       });
 
@@ -147,7 +145,7 @@ class DefaultExtension extends MProvider {
         });
       }
       
-      return {"list": list, hasNextPage: true};
+      return {"list": list, hasNextPage: list.length == this.query_size};
     }
     async getLatestUpdates(page) {
        let res = await this.graphql("get_content_searchComic", {
@@ -174,7 +172,7 @@ class DefaultExtension extends MProvider {
         });
       }
       
-      return {"list": list, hasNextPage: true};
+      return {"list": list, hasNextPage: list.length == this.query_size};
     }
     get baseUrl() {
       let baseUrl = this.prefs.get("baseurl");
@@ -639,16 +637,6 @@ class DefaultExtension extends MProvider {
                   "zombies"
               ]
             ].map(x => ({ type_name: 'TriState', name: x[0], value: x[1] }))
-          },
-          {
-            type_name: "SelectFilter",
-            type: "GenreFilterType",
-            name: "white/black list toggle",
-            state: 0,
-            values: [
-              ["Blacklist", "b"],
-              ["Whitelist", "w"]
-            ].map(x => ({ type_name: 'SelectOption', name: x[0], value: x[1] }))
           }
         ]
     }
