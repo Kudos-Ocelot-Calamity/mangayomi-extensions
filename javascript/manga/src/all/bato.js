@@ -87,9 +87,9 @@ class DefaultExtension extends MProvider {
     async getPopular(page) {
         let res = await this.graphql("get_content_searchComic", {
          "select": {
-             "where": "popular",
+            "where": "popular",
             "page": page,
-            "size": 10,
+            "size": this.query_size,
             "word": null,
             "excGenres": [],
             "incGenres": []
@@ -122,9 +122,9 @@ class DefaultExtension extends MProvider {
       })
       let res = await this.graphql("get_content_searchComic", {
          "select": {
-             "where": "browse",
+            "where": "browse",
             "page": page,
-            "size": 10,
+            "size": this.query_size,
             "word": query,
             "excGenres": excluded,
             "incGenres": included
@@ -150,9 +150,9 @@ class DefaultExtension extends MProvider {
     async getLatestUpdates(page) {
        let res = await this.graphql("get_content_searchComic", {
          "select": {
-             "where": "latest",
+            "where": "latest",
             "page": page,
-            "size": 10,
+            "size": this.query_size,
             "word": null,
             "excGenres": [],
             "incGenres": []
