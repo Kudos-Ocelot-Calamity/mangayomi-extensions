@@ -1,6 +1,3 @@
-// this shit uses epub
-//
-
 const mangayomiSources = [{
     "name": "Anna's Archive",
     "lang": "all",
