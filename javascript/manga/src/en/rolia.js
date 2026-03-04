@@ -7,7 +7,7 @@ const mangayomiSources = [{
     "typeSource": "single",
     "itemType": 0,
     "version": "0.0.1",
-    "pkgPath": "manga/src/en/roliascan.js"
+    "pkgPath": "main/javascript/manga/src/en/roliascan.js"
 }];
 
 class DefaultExtension extends MProvider {
