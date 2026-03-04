@@ -148,6 +148,7 @@ import 'src/tr/merlinscans/merlinscans.dart';
 import 'src/tr/ruyamanga/ruyamanga.dart';
 import 'src/tr/turkcemangaoku/turkcemangaoku.dart';
 import 'src/tr/webtoonhatti/webtoonhatti.dart';
+import 'src/en/roliascan/roliascan.dart';
 
 const madaraVersion = "0.1.3";
 const madaraSourceCodeUrl =
