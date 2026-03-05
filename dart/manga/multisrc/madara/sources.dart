@@ -275,6 +275,8 @@ List<Source> _madaraSourcesList =
           rightdarkscanSource,
           //Romantik Manga (TR)
           romantikmangaSource,
+          //RoliaScan (En)
+          roliascanSource,
           //S2Manga (EN)
           s2mangaSource,
           //SamuraiScan (ES)
